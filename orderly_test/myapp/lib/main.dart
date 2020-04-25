@@ -1,6 +1,9 @@
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:english_words/english_words.dart';
+import 'package:http/http.dart' as http;
+
 //import 'package:http/http.dart' as http;
 void main() => runApp(MyApp());
 
@@ -9,118 +12,74 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Time Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
-      ),
-      home: TimeZone(),
+      home: Homepage(),
     );
   }
 }
 
-class TimeZoneState extends State<TimeZone> {
-  final _countries = <WordPair>[];
-  final _biggerFont = const TextStyle(fontSize: 18.0);
-  final Set<WordPair> _saved = Set<WordPair>();
+class Homepage extends StatefulWidget {
+  @override
+ HomepageState createState() => new HomepageState();
+}
+
+//Class to hold our data from the http response
+class CountryList {
+  final String name;
+  CountryList({this.name});
+
+  factory CountryList.fromJson(Map<String, dynamic> json) {
+    return CountryList(
+      name: json['name']
+    );
+  }
+}
+
+class HomepageState extends State<Homepage> {
+  //Fetch the data
+  Future<CountryList> countrylist;
+  @override
+  void initState() {
+    super.initState();
+    countrylist = fetchAlbum();
+  }
+//Make a network request
+Future<CountryList> fetchAlbum() async {
+  final response = await http.get('http://worldtimeapi.org/api/timezone"');
+  if (response.statusCode == 200) {
+    return CountryList.fromJson(json.decode(response.body));
+  } else {
+    throw Exception('Failed to load list');
+  }
+}
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Time Zones'),
-        actions: <Widget>[
-          IconButton(icon: Icon(Icons.list), onPressed: _pushSaved)
-        ],
+    return MaterialApp(
+      title: 'Time Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
       ),
-      body: _buildCountriesList(),
-    );
-  }
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Fetch Data Example'),
+        ),
+        body: Center(
+          child: FutureBuilder<CountryList>(
+  future: countrylist,
+  builder: (context, snapshot) {
+    if (snapshot.hasData) {
+      return Text(snapshot.data.name);
+    } else if (snapshot.hasError) {
+      return Text("${snapshot.error}");
+    }
 
-  void _pushSaved() {
-    Navigator.of(context)
-      .push(MaterialPageRoute(
-        builder: (BuildContext context) {
-          final Iterable<ListTile> tiles = _saved.map(
-            (WordPair pair) {
-              return ListTile(
-                title: Text(
-                  pair.asPascalCase,
-                  style: _biggerFont,
-                ),
-              );
-            }
-          );
-          final List<Widget> divided = ListTile
-          .divideTiles(
-            context: context,
-            tiles: tiles
-          ).toList();
-
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Details page'),
-            ),
-            body: ListView(children: divided)
-          );
-        }
+    // By default, show a loading spinner.
+    return CircularProgressIndicator();
+  },
+),
+        ),
       )
-      
     );
   }
-
-  Widget _buildCountriesList () {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
-      itemBuilder: /*1*/ (context, i) {
-        if (i.isOdd) return Divider(); /*2 */
-        final index = i ~/ 2; /*3 */
-        if (index >= _countries.length) {
-          _countries.addAll(generateWordPairs().take(10)); /*4 */
-        }
-        return _buildRow(_countries[index]);
-      },
-    );
-  }
-
-  Widget _buildRow(WordPair pair) {
-  final bool alreadySaved = _saved.contains(pair);
-  return ListTile(
-    title: Text(
-      pair.asPascalCase,
-      style: _biggerFont,
-    ),
-    trailing: Icon(
-      alreadySaved ? Icons.arrow_forward : Icons.arrow_forward_ios,
-      color: alreadySaved ? Colors.grey: null,
-    ),
-    onTap: () {
-      setState(() {
-        if (alreadySaved) {
-          _saved.remove(pair);
-        } else {
-          _saved.add(pair);
-        }
-      });
-    },
-  );
-  }
 }
 
-//Define list of countries
-class Countries {
-  final String name;
-
-  Countries(this.name);
-
-  final countries = List<Countries>.generate(
-    20,
-    (i) => Countries(
-      'Todo $i',
-      
-    ),
-  );
-}
-//main class
-class TimeZone extends StatefulWidget {
-  @override
-  TimeZoneState createState() => TimeZoneState();
-}
