@@ -1,5 +1,6 @@
 
 
+//import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -52,7 +53,7 @@ class HomepageState extends State<Homepage> {
           itemBuilder: (BuildContext context, int index) {
             return ListTile(
               contentPadding: EdgeInsets.all(10.2),
-              title: new Text(list[index]['name']),
+              title: new Text(),
               trailing: Icon(
                 Icons.arrow_forward
               ),
@@ -88,6 +89,64 @@ TimeDemoData._({this.name});
 factory TimeDemoData.fromJson(Map<String, dynamic> json) {
     return new TimeDemoData._(
       name: json['name']
+    );
+  }
+}
+
+
+class DetailsPage extends State<Homepage>
+    with SingleTickerProviderStateMixin {
+  AnimationController controller;
+  Animation<double> animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = AnimationController(
+      duration: Duration(seconds: 1),
+      vsync: this,
+    );
+
+    animation = CurvedAnimation(
+      parent: controller,
+      curve: Curves.easeInOutCubic,
+    ).drive(Tween(begin: 0, end: 2));
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        controller
+          ..reset()
+          ..forward();
+      },
+      child: RotationTransition(
+        turns: animation,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Icon(Icons.wb_incandescent),
+            ),
+            Center(
+              child: Text(
+                'Click me!',
+                style: TextStyle(
+                  fontSize: 60.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
