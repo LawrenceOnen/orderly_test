@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
+import './detailpage.dart';
 
-class Homepage extends StatelessWidget {
+//Stateful class to instantiate a dynamic widget
+class Homepage extends StatefulWidget{
+  @override
+    _HomepageState createState() => _HomepageState();
+  }
+
+class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     return _zonalListView(context);
@@ -24,6 +31,14 @@ class Homepage extends StatelessWidget {
                 return ListTile(
                   title: Text(europeanCountries[index]),
                   trailing: Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                       MaterialPageRoute(
+                         builder: (context) => Detailpage()
+                         ),
+                       );
+                  }//=> print(europeanCountries[index]), // Pass this data to the next widget that handles the details
                 );
               },
             );
