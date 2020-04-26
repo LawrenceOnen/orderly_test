@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import './homepage.dart';
 
-
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -13,11 +12,20 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: Text("Time Demo"),
           centerTitle: true,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.settings,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                // do something
+              },
+            )
+          ],
         ),
         body: Homepage(),
       ),
     );
   }
 }
-
-
