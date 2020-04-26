@@ -17,14 +17,15 @@ class Homepage extends StatelessWidget {
         'Netherlands', 'Norway', 'Poland', 'Portugal', 'Romania', 'Russia',
         'San Marino', 'Serbia', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 
         'Switzerland', 'Turkey', 'Ukraine', 'United Kingdom', 'Vatican City'];
-        return ListView.builder(
-        itemCount: europeanCountries.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(europeanCountries[index]),
-            trailing: Icon(Icons.arrow_forward_ios),
-          );
-        },
-      );
+        return ListView.separated(
+              itemCount: europeanCountries.length,
+              separatorBuilder: (BuildContext context, int index) => Divider(),
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  title: Text(europeanCountries[index]),
+                  trailing: Icon(Icons.arrow_forward_ios),
+                );
+              },
+            );
       }
 }
