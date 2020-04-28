@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -7,54 +8,71 @@ import 'package:http/http.dart' as http;
 
 //Stateful class to instantiate a dynamic widget
 class Homepage extends StatefulWidget {
+  final title;
+
+  Homepage({Key key, this.title}) : super(key: key);
+
   @override
   _HomepageState createState() => _HomepageState();
 }
 
 class _HomepageState extends State<Homepage> {
   DateTime localtime = new DateTime.now();
-  Future<Timezones> dataList;
 
-  @override
-  void initState() {
-    super.initState();
-    dataList = fectTimezone();
+  Future<List<Timezones>> _fectTimezone() async {
+    var data = await http.get("http://worldtimeapi.org/api/timezone");
+    var jsonData = json.decode(data.body);
+    //return jsonData;
+
+    List<Timezones> zones = [];
+
+    for (var i in jsonData) {
+      Timezones countries = Timezones();
+      zones.add(countries);
+    }
+    print(zones.length);
+
+    return zones;
   }
-  Future<Timezones> fectTimezone() async {
-  final response = await http.get('http://worldtimeapi.org/api/timezone');
-  if(response.statusCode == 200)
-  {
-    return Timezones.fromJson(json.decode(response.body));
-  } else {
-    throw Exception('failed to load data');
-  }
-}
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: FutureBuilder<Timezones>(
-            future: dataList,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Text(snapshot.data.title);
-              } else {
-                return Text("${snapshot.error}");
+    return new Scaffold(
+      appBar: new AppBar(
+        title: widget.title,
+      ),
+      body: Container(
+        child: FutureBuilder(
+          future: _fectTimezone(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+
+            if(snapshot.data == null){
+              return Container(
+                child: Center(
+                  child: Text("Loading.."),
+                ),
+              );
+            } else {
+            return ListView.builder(
+              itemCount: snapshot.data.length,
+              itemBuilder: (BuildContext context, int index){
+                return Container(
+                  child: ListTile(
+                    title: Text(snapshot.data[index]),
+                  ),
+                );
               }
+              );
             }
-            )
-        ),),
+          },
+        ),
+      ),
     );
   }
 }
+
 class Timezones {
   final String title;
 
   Timezones({this.title});
-
-  factory Timezones.fromJson(Map<String, dynamic> json) {
-    return Timezones();
-  }
 }
