@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import './homepage.dart';
+import 'login_signup_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -8,24 +8,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text("Time Demo"),
-          centerTitle: true,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(
-                Icons.settings,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                // do something
-              },
-            )
-          ],
-        ),
-        body: Homepage(),
+      title: 'SSO Login demo',
+      theme: new ThemeData(
+        primarySwatch: Colors.blueGrey
       ),
+      home: LoginSignupPage(),
     );
   }
 }
